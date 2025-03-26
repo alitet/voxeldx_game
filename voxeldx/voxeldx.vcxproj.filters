@@ -6,8 +6,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="core\GameMain.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
     <ClCompile Include="core\main.cpp">
       <Filter>core</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="core\GameMain.h">
+      <Filter>core</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
