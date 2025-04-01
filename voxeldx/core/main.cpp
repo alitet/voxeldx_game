@@ -1,22 +1,28 @@
 #include "GameMain.h"
 
+
 using namespace JUCore;
 
 class MiniEngino : public JUCore::IGameApp
 {
 public:
 
-  MiniEngino()
+  MiniEngino(unsigned int width, unsigned int height)
+    : mWidth(width), mHeight(height)
   {
   }
 
-  virtual void Startup(void) override;
-  virtual void Cleanup(void) override;
+  void Startup(void) override;
+  void Cleanup(void) override;
 
-  virtual void Update(float deltaT) override;
-  virtual void RenderScene(void) override;
+  void Update(float deltaT) override;
+  void RenderScene(void) override;
+
+  std::pair<unsigned int, unsigned int> GetDims() override;
 
 private:
+  unsigned int mWidth, mHeight;
+
 };
 
 //CREATE_APPLICATION(MiniEngino)
@@ -52,10 +58,17 @@ void MiniEngino::RenderScene(void)
 	//gfxContext.Finish();
 }
 
-MiniEngino mEngino;
+std::pair<unsigned int, unsigned int> MiniEngino::GetDims()
+{
+  return std::make_pair(mWidth, mHeight);
+}
+
+
+//MiniEngino mEngino;
 
 //int main()
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE /*hPrevInstance*/, _In_ LPWSTR /*lpCmdLine*/, _In_ int nCmdShow)
 {
+  MiniEngino mEngino(900, 675);
   return JUCore::RunApplication(mEngino, L"MiniEngino", hInstance, nCmdShow);
 }

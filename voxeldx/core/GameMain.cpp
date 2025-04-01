@@ -1,5 +1,6 @@
 #include "GameMain.h"
-#include <shellapi.h>
+//#include <shellapi.h>
+#include "../graphics/Graphics.h"
 
 //#pragma comment(lib, "runtimeobject.lib") 
 
@@ -8,6 +9,7 @@ namespace JUCore
  // using namespace Graphics;
 
   bool gIsSupending = false;
+  HWND g_hWnd = nullptr;
 
   void InitializeApplication(IGameApp& game)
   {
@@ -19,6 +21,8 @@ namespace JUCore
     //SystemTime::Initialize();
     //GameInput::Initialize();
     //EngineTuning::Initialize();
+    auto dimos = game.GetDims();
+    Graphics::DX12Initialize(dimos.first, dimos.second, g_hWnd);
 
     game.Startup();
   }
@@ -70,7 +74,7 @@ namespace JUCore
     return false;// GameInput::IsFirstPressed(GameInput::kKey_escape);
   }
 
-  HWND g_hWnd = nullptr;
+  
 
   LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
@@ -100,7 +104,8 @@ namespace JUCore
     auto hh = RegisterClassEx(&wcex);
 
     // Create window
-    RECT rc = { 0, 0, (LONG)1024, (LONG)768 };
+    auto dimos = app.GetDims();
+    RECT rc = { 0, 0, (LONG)dimos.first, (LONG)dimos.second };
     AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
 
     g_hWnd = CreateWindow(className, className, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,

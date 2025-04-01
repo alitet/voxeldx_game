@@ -1,11 +1,12 @@
 #pragma once
 
-#define NODRAWTEXT
-#define NOGDI
-#define NOBITMAP
-#define NOHELP
+//#define NODRAWTEXT
+//#define NOGDI
+//#define NOBITMAP
+//#define NOHELP
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <utility>
 
 namespace JUCore
 {
@@ -22,6 +23,7 @@ namespace JUCore
     virtual void Update(float deltaT) = 0;
 
     virtual void RenderScene(void) = 0;
+    virtual std::pair<unsigned int, unsigned int> GetDims() = 0;
 
     virtual void RenderUI(class GraphicsContext&) {};
 

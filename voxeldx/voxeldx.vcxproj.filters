@@ -4,6 +4,9 @@
     <Filter Include="core">
       <UniqueIdentifier>{e84dce84-84ed-4b14-a078-e3afc9e42f09}</UniqueIdentifier>
     </Filter>
+    <Filter Include="graphics">
+      <UniqueIdentifier>{fe45f59f-49d4-4981-8551-ba97cb5c099e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="core\GameMain.cpp">
@@ -12,10 +15,16 @@
     <ClCompile Include="core\main.cpp">
       <Filter>core</Filter>
     </ClCompile>
+    <ClCompile Include="graphics\Graphics.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\GameMain.h">
       <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="graphics\Graphics.h">
+      <Filter>graphics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
