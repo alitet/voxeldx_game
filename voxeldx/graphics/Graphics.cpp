@@ -1,24 +1,28 @@
 #include "Graphics.h"
 
 //#include <d3d12.h>
-#include "include/directx/d3dx12.h"
+//#include "include/directx/d3dx12.h"
 
-#include <dxgi1_6.h>
-#include <D3Dcompiler.h>
-#include <DirectXMath.h>
+//#include <dxgi1_6.h>
+//#include <D3Dcompiler.h>
+//#include <DirectXMath.h>
+//#include "include/directx/d3dx12/d3dx12.h"
 
 //#include <shellapi.h>
 
-ComPtr<ID3D12Device> JUCore::Graphics::m_device = nullptr;
-ComPtr<ID3D12CommandQueue> JUCore::Graphics::m_commandQueue = nullptr;
-ComPtr<IDXGISwapChain3> JUCore::Graphics::m_swapChain = nullptr;
-ComPtr<ID3D12DescriptorHeap> JUCore::Graphics::m_rtvHeap = nullptr;
-ComPtr<ID3D12Resource> JUCore::Graphics::m_renderTargets[] = { nullptr };
-ComPtr<ID3D12CommandAllocator> JUCore::Graphics::m_commandAllocator = nullptr;
+//ComPtr<ID3D12Device> JUCore::Graphics::m_device = nullptr;
+//ComPtr<ID3D12CommandQueue> JUCore::Graphics::m_commandQueue = nullptr;
+//ComPtr<IDXGISwapChain3> JUCore::Graphics::m_swapChain = nullptr;
+//ComPtr<ID3D12DescriptorHeap> JUCore::Graphics::m_rtvHeap = nullptr;
+//ComPtr<ID3D12Resource> JUCore::Graphics::m_renderTargets[] = { nullptr };
+//ComPtr<ID3D12CommandAllocator> JUCore::Graphics::m_commandAllocator = nullptr;
+
+std::unique_ptr<JUCore::Graphics> JUCore::Graphics::mInstance(new JUCore::Graphics);
 
 //const UINT JUCore::Graphics::frameCount = 2;
-UINT JUCore::Graphics::frameIndex = 0;
-UINT JUCore::Graphics::m_rtvDescriptorSize = 0;
+
+//UINT JUCore::Graphics::frameIndex = 0;
+//UINT JUCore::Graphics::m_rtvDescriptorSize = 0;
 
 namespace JUCore
 {
@@ -164,6 +168,19 @@ namespace JUCore
     }
 
     m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator));
+  }
+
+  void Graphics::DX12ConfigLoad()
+  {
+    {
+      CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc;
+      rootSignatureDesc.Init(0, nullptr, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+
+      ComPtr<ID3DBlob> signature;
+      ComPtr<ID3DBlob> error;
+      D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error);
+      m_device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_rootSignature));
+    }
   }
 
 }
