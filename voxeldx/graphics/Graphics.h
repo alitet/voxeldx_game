@@ -1,25 +1,15 @@
 #pragma once
-//#include "include/d3dx12.h"
 
-#include "include/directx/d3d12.h"
+#include "../dx/include/d3d12.h"
 #include <dxgi1_6.h>
 #include <D3Dcompiler.h>
 #include <DirectXMath.h>
-#include "include/directx/d3dx12/d3dx12.h"
+#include "../dx/include/d3dx12/d3dx12.h"
 
 #include <wrl.h>
 #include <memory>
 
 using Microsoft::WRL::ComPtr;
-
-//struct ID3D12Device;
-//struct ID3D12CommandQueue;
-//struct IDXGISwapChain3;
-//struct ID3D12DescriptorHeap;
-//struct ID3D12Resource;
-//struct ID3D12CommandAllocator;
-
-//struct ID3D12RootSignature;
 
 namespace JUCore
 {

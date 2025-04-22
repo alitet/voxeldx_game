@@ -28,8 +28,7 @@ namespace JUCore
 {
 
   // from Microsoft MiniEngime
-  _Use_decl_annotations_ void GetHardwareAdapter(
-    _In_ IDXGIFactory1* pFactory,
+  _Use_decl_annotations_ void GetHardwareAdapter(_In_ IDXGIFactory1* pFactory,
     _Outptr_result_maybenull_ IDXGIAdapter1** ppAdapter,
       bool requestHighPerformanceAdapter = false)
   {
