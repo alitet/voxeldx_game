@@ -22,8 +22,8 @@ namespace JUCore
     //GameInput::Initialize();
     //EngineTuning::Initialize();
     auto dimos = game.GetDims();
-    Graphics::get()->DX12Initialize(dimos.first, dimos.second, g_hWnd);
-    Graphics::get()->DX12ConfigLoad();
+    Graphics::get().DX12Initialize(dimos.first, dimos.second, g_hWnd);
+    Graphics::get().DX12ConfigLoad();
 
     game.Startup();
   }
