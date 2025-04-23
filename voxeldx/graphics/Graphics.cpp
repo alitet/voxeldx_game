@@ -26,6 +26,11 @@ std::unique_ptr<JUCore::Graphics> JUCore::Graphics::mInstance(new JUCore::Graphi
 
 namespace JUCore
 {
+  std::wstring GetAssetFullPath(LPCWSTR assetName)
+  {
+    return L"data/shaders/" + std::wstring(assetName);
+  }
+
   Graphics::Graphics()
     : m_frameIndex(0), m_rtvDescriptorSize(0)
     , m_aspectRatio(1.f)
@@ -38,11 +43,6 @@ namespace JUCore
       mInstance = std::unique_ptr<Graphics>(new Graphics());
     }
     return *mInstance;
-  }
-
-  std::wstring GetAssetFullPath(LPCWSTR assetName)
-  {
-    return L"data/shaders/" + std::wstring(assetName);
   }
 
   // from Microsoft MiniEngime
