@@ -24,6 +24,10 @@ namespace JUCore
 	private:
 		Graphics() = default;
 
+		void MoveToNextFrame();
+		void WaitForGpu();
+
+
 	private:
 
 		static std::unique_ptr<Graphics> mInstance;
@@ -37,6 +41,8 @@ namespace JUCore
 		ComPtr<ID3D12CommandAllocator> m_commandAllocator;
 
 		ComPtr<ID3D12RootSignature> m_rootSignature;
+
+
 
 
 		UINT m_rtvDescriptorSize;

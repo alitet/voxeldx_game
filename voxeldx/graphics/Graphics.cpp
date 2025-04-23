@@ -30,7 +30,7 @@ namespace JUCore
   // from Microsoft MiniEngime
   _Use_decl_annotations_ void GetHardwareAdapter(_In_ IDXGIFactory1* pFactory,
     _Outptr_result_maybenull_ IDXGIAdapter1** ppAdapter,
-      bool requestHighPerformanceAdapter = false)
+    bool requestHighPerformanceAdapter = false)
   {
     *ppAdapter = nullptr;
     ComPtr<IDXGIAdapter1> adapter;
@@ -101,11 +101,11 @@ namespace JUCore
     //}
     //else
     //{
-      ComPtr<IDXGIAdapter1> hardwareAdapter;
-      GetHardwareAdapter(factory.Get(), &hardwareAdapter);
+    ComPtr<IDXGIAdapter1> hardwareAdapter;
+    GetHardwareAdapter(factory.Get(), &hardwareAdapter);
 
-      D3D12CreateDevice( hardwareAdapter.Get(),
-        D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_device) );
+    D3D12CreateDevice(hardwareAdapter.Get(),
+      D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_device));
     //}
 
     // Describe and create the command queue.
@@ -182,4 +182,33 @@ namespace JUCore
     }
   }
 
+  void Graphics::WaitForGpu()
+  {
+    // la senal es DEL commandqueue NO del fence de CPU
+    m_commandQueue->Signal(m_fence.Get(), m_fenceValues[m_frameIndex]);
+
+    m_fence->SetEventOnCompletion(m_fenceValues[m_frameIndex], m_fenceEvent);
+    WaitForSingleObjectEx(m_fenceEvent, INFINITE, FALSE);
+
+    // se va a senalizar con un valor aumentado.
+    m_fenceValues[m_frameIndex]++;
+  }
+
+  void Graphics::MoveToNextFrame()
+  {
+    // Se le dice que signalize, pero lo va a hacer hasta que termine.
+    const UINT64 currentFenceValue = m_fenceValues[m_frameIndex];
+    m_commandQueue->Signal(m_fence.Get(), currentFenceValue);
+
+    m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
+
+    if (m_fence->GetCompletedValue() < m_fenceValues[m_frameIndex])
+    {
+      m_fence->SetEventOnCompletion(m_fenceValues[m_frameIndex], m_fenceEvent);
+      WaitForSingleObjectEx(m_fenceEvent, INFINITE, FALSE);
+    }
+
+    // Se aumenta el fence pero solo del frame actualmente en le swapchain.
+    m_fenceValues[m_frameIndex] = currentFenceValue + 1;
+  }
 }
