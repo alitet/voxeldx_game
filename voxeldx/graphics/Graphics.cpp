@@ -94,6 +94,9 @@ namespace JUCore
     UINT dxgiFactoryFlags = 0;
     m_aspectRatio = static_cast<float>(w) / static_cast<float>(h);
 
+    m_viewport = CD3DX12_VIEWPORT{ 0.0f, 0.0f, static_cast<float>(w), static_cast<float>(h) };
+    m_scissorRect = CD3DX12_RECT{ 0, 0, static_cast<LONG>(w), static_cast<LONG>(h) };
+
 #if defined(_DEBUG)
     {
       ComPtr<ID3D12Debug> debugController;
@@ -283,6 +286,42 @@ namespace JUCore
       m_vertexBufferView.StrideInBytes = sizeof(Vertex);
       m_vertexBufferView.SizeInBytes = vertexBufferSize;
     }
+
+    // Create synchronization objects and wait until assets have been uploaded to the GPU.
+    {
+      m_device->CreateFence(m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence));
+      m_fenceValues[m_frameIndex]++;
+
+      // Create an event handle to use for frame synchronization.
+      m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+      if (m_fenceEvent == nullptr) { HRESULT_FROM_WIN32(GetLastError()); }
+
+      // Wait for the command list to execute; we are reusing the same command 
+      // list in our main loop but for now, we just want to wait for setup to 
+      // complete before continuing.
+      WaitForGpu();
+    }
+  }
+
+  void Graphics::DX12Render()
+  {
+    // Record all the commands we need to render the scene into the command list.
+    PopulateCommandList();
+
+    // Execute the command list.
+    ID3D12CommandList* ppCommandLists[] = { m_commandList.Get() };
+    m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+
+    // Present the frame.
+    m_swapChain->Present(1, 0);
+
+    MoveToNextFrame();
+  }
+
+  void Graphics::DX12Destroy()
+  {
+    WaitForGpu();
+    CloseHandle(m_fenceEvent);
   }
 
   void Graphics::WaitForGpu()
@@ -314,4 +353,43 @@ namespace JUCore
     // Se aumenta el fence pero solo del frame actualmente en le swapchain.
     m_fenceValues[m_frameIndex] = currentFenceValue + 1;
   }
+
+  void Graphics::PopulateCommandList()
+  {
+    // Command list allocators can only be reset when the associated 
+    // command lists have finished execution on the GPU; apps should use 
+    // fences to determine GPU execution progress.
+    m_commandAllocator->Reset();
+    m_commandList->Reset(m_commandAllocator.Get(), m_pipelineState.Get());
+
+    // Set necessary state.
+    m_commandList->SetGraphicsRootSignature(m_rootSignature.Get());
+    m_commandList->RSSetViewports(1, &m_viewport);
+    m_commandList->RSSetScissorRects(1, &m_scissorRect);
+
+    // Indicate that the back buffer will be used as a render target.
+    auto resRT = CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex].Get(),
+      D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+    m_commandList->ResourceBarrier(1, &resRT);
+
+    CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(
+      m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex, m_rtvDescriptorSize);
+    m_commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
+
+    // Record commands.
+    const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
+    m_commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
+    m_commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    m_commandList->IASetVertexBuffers(0, 1, &m_vertexBufferView);
+    m_commandList->DrawInstanced(3, 1, 0, 0);
+
+    // Indicate that the back buffer will now be used to present.
+    auto resState = CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex].Get(),
+      D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+    m_commandList->ResourceBarrier(1, &resState);
+
+    m_commandList->Close();
+  }
+
 }

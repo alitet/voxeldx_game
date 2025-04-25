@@ -19,6 +19,9 @@ namespace JUCore
 
 		void DX12Initialize(UINT w, UINT h, HWND handler);
 		void DX12ConfigLoad();
+		void DX12Render();
+		void DX12Destroy();
+
 
 		static Graphics& get();
 
@@ -28,6 +31,7 @@ namespace JUCore
 		void MoveToNextFrame();
 		void WaitForGpu();
 
+		void PopulateCommandList();
 
 	private:
 
@@ -41,6 +45,9 @@ namespace JUCore
 			XMFLOAT3 position;
 			XMFLOAT4 color;
 		};
+
+		CD3DX12_VIEWPORT m_viewport;
+		CD3DX12_RECT m_scissorRect;
 
 		ComPtr<ID3D12Device> m_device;
 		ComPtr<ID3D12CommandQueue> m_commandQueue;

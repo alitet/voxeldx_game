@@ -33,6 +33,7 @@ namespace JUCore
     //g_CommandManager.IdleGPU();
 
     game.Cleanup();
+    Graphics::get().DX12Destroy();
 
     //GameInput::Shutdown();
   }
@@ -48,6 +49,8 @@ namespace JUCore
 
     game.Update(0.f);// DeltaTime);
     game.RenderScene();
+
+    Graphics::get().DX12Render();
 
     //PostEffects::Render();
 
