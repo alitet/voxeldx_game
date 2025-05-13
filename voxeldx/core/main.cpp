@@ -18,6 +18,9 @@ public:
   void Update(float deltaT) override;
   void RenderScene(void) override;
 
+  void OnKeyUp(uint8_t) override;
+  void OnKeyDown(uint8_t) override;
+
   std::pair<unsigned int, unsigned int> GetDims() override;
 
 private:
@@ -56,6 +59,14 @@ void MiniEngino::RenderScene(void)
 	//// Rendering something
 
 	//gfxContext.Finish();
+}
+
+void MiniEngino::OnKeyUp(uint8_t key)
+{
+}
+
+void MiniEngino::OnKeyDown(uint8_t key)
+{
 }
 
 std::pair<unsigned int, unsigned int> MiniEngino::GetDims()

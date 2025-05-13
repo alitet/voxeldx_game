@@ -263,6 +263,31 @@ namespace JUCore
       // recommended. Every time the GPU needs it, the upload heap will be marshalled 
       // over. Please read up on Default Heap usage. An upload heap is used here for 
       // code simplicity and because there are very few verts to actually transfer.
+
+      //auto heapprop1 = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+      //auto resodesc1 = CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize);
+
+      //m_device->CreateCommittedResource(
+      //  &heapprop1,
+      //  D3D12_HEAP_FLAG_NONE,
+      //  &resodesc1,
+      //  D3D12_RESOURCE_STATE_COPY_SOURCE,
+      //  nullptr,
+      //  IID_PPV_ARGS(&m_vertexUpload));
+
+
+      //auto heapprop2 = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+      //auto resodesc2 = CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize);
+
+      //m_device->CreateCommittedResource(
+      //  &heapprop2,
+      //  D3D12_HEAP_FLAG_NONE,
+      //  &resodesc2,
+      //  D3D12_RESOURCE_STATE_GENERIC_READ,
+      //  nullptr,
+      //  IID_PPV_ARGS(&m_vertexBuffer));
+
+
       auto heapprop = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
       auto resodesc = CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize);
 

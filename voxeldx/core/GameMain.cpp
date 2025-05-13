@@ -9,9 +9,10 @@ namespace JUCore
  // using namespace Graphics;
 
   bool gIsSupending = false;
-  HWND g_hWnd = nullptr;
+  static HWND g_hWnd = nullptr;
+  static IGameApp *gapp = nullptr;
 
-  void InitializeApplication(IGameApp& game)
+  void InitializeApplication(IGameApp& game, HWND wndh)
   {
     //int argc = 0;
     //LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
@@ -84,6 +85,8 @@ namespace JUCore
 
   int RunApplication(IGameApp& app, const wchar_t* className, HINSTANCE hInst, int nCmdShow)
   {
+
+    gapp = &app;
     //if (!XMVerifyCPUSupport())
     //  return 1;
 
@@ -117,26 +120,20 @@ namespace JUCore
 
     //ASSERT(g_hWnd != 0);
 
-    InitializeApplication(app);
+    InitializeApplication(app, g_hWnd);
 
     ShowWindow(g_hWnd, nCmdShow/*SW_SHOWDEFAULT*/);
 
-    do
+    MSG msg = {};
+    while (msg.message != WM_QUIT)
     {
-      MSG msg = {};
-      bool done = false;
-      while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+      // Process any messages in the queue.
+      if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
       {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
-
-        if (msg.message == WM_QUIT)
-          done = true;
       }
-
-      if (done)
-        break;
-    } while (UpdateApplication(app));	// Returns false to quit loop
+    }
 
     TerminateApplication(app);
     //Graphics::Shutdown();
@@ -151,12 +148,29 @@ namespace JUCore
     switch (message)
     {
     case WM_SIZE:
-      //Display::Resize((UINT)(UINT64)lParam & 0xFFFF, (UINT)(UINT64)lParam >> 16);
-      break;
+      return 0;;
+
+    case WM_KEYDOWN:
+      if (gapp != nullptr) {
+        gapp->OnKeyDown(static_cast<uint8_t>(wParam));
+      }
+      return 0;
+
+    case WM_KEYUP:
+      if (gapp != nullptr) {
+        gapp->OnKeyUp(static_cast<uint8_t>(wParam));
+      }
+      return 0;
+
+    case WM_PAINT:
+      if (gapp != nullptr) {
+        UpdateApplication(*gapp);
+      }
+      return 0;
 
     case WM_DESTROY:
       PostQuitMessage(0);
-      break;
+      return 0;
 
     default:
       return DefWindowProc(hWnd, message, wParam, lParam);

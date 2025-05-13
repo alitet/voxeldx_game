@@ -7,6 +7,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <utility>
+#include <stdint.h>
 
 namespace JUCore
 {
@@ -27,7 +28,10 @@ namespace JUCore
 
     virtual void RenderUI(class GraphicsContext&) {};
 
-    virtual bool RequiresRaytracingSupport() const { return false; }
+    virtual void OnKeyUp(uint8_t) = 0;
+    virtual void OnKeyDown(uint8_t) = 0;
+
+    //virtual bool RequiresRaytracingSupport() const { return false; }
   };
 }
 

@@ -62,6 +62,9 @@ namespace JUCore
 		ComPtr<ID3D12GraphicsCommandList> m_commandList;
 
 		ComPtr<ID3D12Resource> m_vertexBuffer;
+
+		ComPtr<ID3D12Resource> m_vertexUpload;
+		ComPtr<ID3D12Resource> m_vertexDefault;
 		D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
 
 		// sync values
