@@ -22,6 +22,8 @@ namespace JUCore
 		void DX12Render();
 		void DX12Destroy();
 
+		void KeyUp(uint8_t key);
+		void KeyDn(uint8_t key);
 
 		static Graphics& get();
 
@@ -33,10 +35,16 @@ namespace JUCore
 
 		void PopulateCommandList();
 
+		void PreFillCL();
+		void PostFillCL();
+
 	private:
 
 		static std::unique_ptr<Graphics> mInstance;
 		static const UINT frameCount = 2;
+
+		bool needRefresh = true;
+		bool needUpdate = false;
 
 		float m_aspectRatio;
 
@@ -61,7 +69,7 @@ namespace JUCore
 
 		ComPtr<ID3D12GraphicsCommandList> m_commandList;
 
-		ComPtr<ID3D12Resource> m_vertexBuffer;
+		//ComPtr<ID3D12Resource> m_vertexBuffer;
 
 		ComPtr<ID3D12Resource> m_vertexUpload;
 		ComPtr<ID3D12Resource> m_vertexDefault;

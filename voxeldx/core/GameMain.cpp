@@ -148,11 +148,13 @@ namespace JUCore
     switch (message)
     {
     case WM_SIZE:
-      return 0;;
+      return 0;
 
     case WM_KEYDOWN:
       if (gapp != nullptr) {
-        gapp->OnKeyDown(static_cast<uint8_t>(wParam));
+        uint8_t kcd = static_cast<uint8_t>(wParam);
+        gapp->OnKeyDown(kcd);
+        Graphics::get().KeyDn(kcd);
       }
       return 0;
 

@@ -264,52 +264,66 @@ namespace JUCore
       // over. Please read up on Default Heap usage. An upload heap is used here for 
       // code simplicity and because there are very few verts to actually transfer.
 
-      //auto heapprop1 = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-      //auto resodesc1 = CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize);
+      auto heapprop1 = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+      auto resodesc1 = CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize);
+
+      m_device->CreateCommittedResource(
+        &heapprop1,
+        D3D12_HEAP_FLAG_NONE,
+        &resodesc1,
+        D3D12_RESOURCE_STATE_GENERIC_READ,
+        nullptr,
+        IID_PPV_ARGS(&m_vertexUpload));
+
+
+      auto heapprop2 = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+      auto resodesc2 = CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize);
+
+      m_device->CreateCommittedResource(
+        &heapprop2,
+        D3D12_HEAP_FLAG_NONE,
+        &resodesc2,
+        D3D12_RESOURCE_STATE_COPY_DEST,//D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,
+        nullptr,
+        IID_PPV_ARGS(&m_vertexDefault));
+
+
+      //auto heapprop = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+      //auto resodesc = CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize);
 
       //m_device->CreateCommittedResource(
-      //  &heapprop1,
+      //  &heapprop,
       //  D3D12_HEAP_FLAG_NONE,
-      //  &resodesc1,
-      //  D3D12_RESOURCE_STATE_COPY_SOURCE,
-      //  nullptr,
-      //  IID_PPV_ARGS(&m_vertexUpload));
-
-
-      //auto heapprop2 = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-      //auto resodesc2 = CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize);
-
-      //m_device->CreateCommittedResource(
-      //  &heapprop2,
-      //  D3D12_HEAP_FLAG_NONE,
-      //  &resodesc2,
+      //  &resodesc,
       //  D3D12_RESOURCE_STATE_GENERIC_READ,
       //  nullptr,
       //  IID_PPV_ARGS(&m_vertexBuffer));
 
+      //// Copy the triangle data to the vertex buffer.
+      //UINT8* pVertexDataBegin;
+      //CD3DX12_RANGE readRange(0, 0);        // We do not intend to read from this resource on the CPU.
+      //m_vertexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin));
+      //memcpy(pVertexDataBegin, triangleVertices, sizeof(triangleVertices));
+      //m_vertexBuffer->Unmap(0, nullptr);
 
-      auto heapprop = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-      auto resodesc = CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize);
 
-      m_device->CreateCommittedResource(
-        &heapprop,
-        D3D12_HEAP_FLAG_NONE,
-        &resodesc,
-        D3D12_RESOURCE_STATE_GENERIC_READ,
-        nullptr,
-        IID_PPV_ARGS(&m_vertexBuffer));
-
-      // Copy the triangle data to the vertex buffer.
+            // Copy the triangle data to the vertex buffer.
       UINT8* pVertexDataBegin;
       CD3DX12_RANGE readRange(0, 0);        // We do not intend to read from this resource on the CPU.
-      m_vertexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin));
+      m_vertexUpload->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin));
       memcpy(pVertexDataBegin, triangleVertices, sizeof(triangleVertices));
-      m_vertexBuffer->Unmap(0, nullptr);
+      m_vertexUpload->Unmap(0, nullptr);
 
-      // Initialize the vertex buffer view.
-      m_vertexBufferView.BufferLocation = m_vertexBuffer->GetGPUVirtualAddress();
+      //// Initialize the vertex buffer view.
+      //m_vertexBufferView.BufferLocation = m_vertexBuffer->GetGPUVirtualAddress();
+      //m_vertexBufferView.StrideInBytes = sizeof(Vertex);
+      //m_vertexBufferView.SizeInBytes = vertexBufferSize;
+
+            // Initialize the vertex buffer view.
+      m_vertexBufferView.BufferLocation = m_vertexDefault->GetGPUVirtualAddress();
       m_vertexBufferView.StrideInBytes = sizeof(Vertex);
       m_vertexBufferView.SizeInBytes = vertexBufferSize;
+
     }
 
     // Create synchronization objects and wait until assets have been uploaded to the GPU.
@@ -347,6 +361,15 @@ namespace JUCore
   {
     WaitForGpu();
     CloseHandle(m_fenceEvent);
+  }
+
+  void Graphics::KeyUp(uint8_t key)
+  {
+  }
+
+  void Graphics::KeyDn(uint8_t key)
+  {
+    needUpdate = true;
   }
 
   void Graphics::WaitForGpu()
@@ -406,8 +429,30 @@ namespace JUCore
     const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
     m_commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
     m_commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+    //m_commandList->CopyResource(m_vertexDefault.Get(), m_vertexUpload.Get());
+    //auto resVBB = CD3DX12_RESOURCE_BARRIER::Transition(m_vertexDefault.Get(),
+    //  D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+
+    //m_commandList->ResourceBarrier(1, &resVBB);
+
+    if (needRefresh) {
+      PreFillCL();
+      needRefresh = false;
+    }
+
+    if (needUpdate) {
+      PostFillCL();
+      needUpdate = false;
+    }
+
     m_commandList->IASetVertexBuffers(0, 1, &m_vertexBufferView);
     m_commandList->DrawInstanced(3, 1, 0, 0);
+
+    //auto resDFF = CD3DX12_RESOURCE_BARRIER::Transition(m_vertexDefault.Get(),
+    //  D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_STATE_COPY_DEST);
+
+    //m_commandList->ResourceBarrier(1, &resDFF);
 
     // Indicate that the back buffer will now be used to present.
     auto resState = CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex].Get(),
@@ -415,6 +460,35 @@ namespace JUCore
     m_commandList->ResourceBarrier(1, &resState);
 
     m_commandList->Close();
+  }
+
+  void Graphics::PreFillCL()
+  {
+    //auto resDFF = CD3DX12_RESOURCE_BARRIER::Transition(m_vertexDefault.Get(),
+    //  D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_STATE_COPY_DEST);
+    //m_commandList->ResourceBarrier(1, &resDFF);
+
+    m_commandList->CopyResource(m_vertexDefault.Get(), m_vertexUpload.Get());
+
+    auto resVBB = CD3DX12_RESOURCE_BARRIER::Transition(m_vertexDefault.Get(),
+      D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+    m_commandList->ResourceBarrier(1, &resVBB);
+
+    //m_vertexBufferView.BufferLocation = m_vertexDefault->GetGPUVirtualAddress();
+
+  }
+
+  void Graphics::PostFillCL()
+  {
+    auto resDFF = CD3DX12_RESOURCE_BARRIER::Transition(m_vertexDefault.Get(),
+    D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_STATE_COPY_DEST);
+    m_commandList->ResourceBarrier(1, &resDFF);
+
+    m_commandList->CopyResource(m_vertexDefault.Get(), m_vertexUpload.Get());
+
+    auto resVBB = CD3DX12_RESOURCE_BARRIER::Transition(m_vertexDefault.Get(),
+      D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+    m_commandList->ResourceBarrier(1, &resVBB);
   }
 
 }
