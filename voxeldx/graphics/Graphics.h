@@ -14,8 +14,11 @@ using Microsoft::WRL::ComPtr;
 
 namespace JUCore
 {
+	constexpr unsigned char frameCount = 2;
+
 	class Graphics {
 	public:
+		Graphics();
 
 		void DX12Initialize(UINT w, UINT h, HWND handler);
 		void DX12ConfigLoad();
@@ -25,10 +28,9 @@ namespace JUCore
 		void KeyUp(uint8_t key);
 		void KeyDn(uint8_t key);
 
-		static Graphics& get();
+		//static Graphics& get();
 
 	private:
-		Graphics();
 
 		void MoveToNextFrame();
 		void WaitForGpu();
@@ -40,8 +42,8 @@ namespace JUCore
 
 	private:
 
-		static std::unique_ptr<Graphics> mInstance;
-		static const UINT frameCount = 2;
+		//static std::unique_ptr<Graphics> mInstance;
+		//constexpr UINT frameCount = 2;
 
 		bool needRefresh = true;
 		bool needUpdate = false;

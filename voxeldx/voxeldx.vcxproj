@@ -20,11 +20,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="core\GameMain.cpp" />
+    <ClCompile Include="core\GameWin.cpp" />
     <ClCompile Include="core\main.cpp" />
     <ClCompile Include="graphics\Graphics.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\GameMain.h" />
+    <ClInclude Include="core\IGameApp.h" />
     <ClInclude Include="graphics\Graphics.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

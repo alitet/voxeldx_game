@@ -18,6 +18,9 @@
     <ClCompile Include="graphics\Graphics.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
+    <ClCompile Include="core\GameWin.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\GameMain.h">
@@ -25,6 +28,9 @@
     </ClInclude>
     <ClInclude Include="graphics\Graphics.h">
       <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="core\IGameApp.h">
+      <Filter>core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

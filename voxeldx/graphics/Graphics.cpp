@@ -17,7 +17,7 @@
 //ComPtr<ID3D12Resource> JUCore::Graphics::m_renderTargets[] = { nullptr };
 //ComPtr<ID3D12CommandAllocator> JUCore::Graphics::m_commandAllocator = nullptr;
 
-std::unique_ptr<JUCore::Graphics> JUCore::Graphics::mInstance(new JUCore::Graphics);
+//std::unique_ptr<JUCore::Graphics> JUCore::Graphics::mInstance(new JUCore::Graphics);
 
 //const UINT JUCore::Graphics::frameCount = 2;
 
@@ -33,17 +33,17 @@ namespace JUCore
 
   Graphics::Graphics()
     : m_frameIndex(0), m_rtvDescriptorSize(0)
-    , m_aspectRatio(1.f)
+    , m_aspectRatio(1.f), m_fenceEvent(0)
   {
   }
 
-  Graphics& Graphics::get()
-  {
-    if (!mInstance) {
-      mInstance = std::unique_ptr<Graphics>(new Graphics());
-    }
-    return *mInstance;
-  }
+  //Graphics& Graphics::get()
+  //{
+  //  if (!mInstance) {
+  //    mInstance = std::unique_ptr<Graphics>(new Graphics());
+  //  }
+  //  return *mInstance;
+  //}
 
   // from Microsoft MiniEngime
   _Use_decl_annotations_ void GetHardwareAdapter(_In_ IDXGIFactory1* pFactory,

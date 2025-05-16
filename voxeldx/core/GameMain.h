@@ -1,47 +1,31 @@
 #pragma once
+#include "IGameApp.h"
+#include "../graphics/Graphics.h"
 
-//#define NODRAWTEXT
-//#define NOGDI
-//#define NOBITMAP
-//#define NOHELP
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#include <utility>
-#include <stdint.h>
-
-namespace JUCore
+class GameMain : public JUCore::IGameApp
 {
-  //extern bool gIsSupending;
+public:
 
-  class IGameApp
+  GameMain(unsigned int width, unsigned int height)
+    : mWidth(width), mHeight(height)
   {
-  public:
-    virtual void Startup(void) = 0;
-    virtual void Cleanup(void) = 0;
-   
-    virtual bool IsDone(void);
+  }
 
-    virtual void Update(float deltaT) = 0;
+  void Startup(HWND) override;
+  void Cleanup(void) override;
 
-    virtual void RenderScene(void) = 0;
-    virtual std::pair<unsigned int, unsigned int> GetDims() = 0;
+  void Update(float deltaT) override;
+  void RenderScene(void) override;
 
-    virtual void RenderUI(class GraphicsContext&) {};
+  void OnKeyUp(uint8_t) override;
+  void OnKeyDown(uint8_t) override;
 
-    virtual void OnKeyUp(uint8_t) = 0;
-    virtual void OnKeyDown(uint8_t) = 0;
+  std::pair<unsigned int, unsigned int> GetDims() override;
 
-    //virtual bool RequiresRaytracingSupport() const { return false; }
-  };
-}
+private:
+  unsigned int mWidth, mHeight;
 
-namespace JUCore
-{
-  int RunApplication(IGameApp& app, const wchar_t* className, HINSTANCE hInst, int nCmdShow);
-}
+  JUCore::Graphics mGraphics;
+};
 
-//#define CREATE_APPLICATION( app_class ) \
-//    int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE /*hPrevInstance*/, _In_ LPWSTR /*lpCmdLine*/, _In_ int nCmdShow) \
-//    { \
-//        return JUCore::RunApplication( app_class(), L#app_class, hInstance, nCmdShow ); \
-//    }
+
