@@ -7,18 +7,21 @@
     <Filter Include="graphics">
       <UniqueIdentifier>{fe45f59f-49d4-4981-8551-ba97cb5c099e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="helper">
+      <UniqueIdentifier>{e1482238-8157-4a15-b50d-dbb661b69819}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="core\GameMain.cpp">
-      <Filter>core</Filter>
-    </ClCompile>
-    <ClCompile Include="core\main.cpp">
       <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="graphics\Graphics.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
     <ClCompile Include="core\GameWin.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\mainDos.cpp">
       <Filter>core</Filter>
     </ClCompile>
   </ItemGroup>
@@ -31,6 +34,9 @@
     </ClInclude>
     <ClInclude Include="core\IGameApp.h">
       <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="helper\allheader.h">
+      <Filter>helper</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

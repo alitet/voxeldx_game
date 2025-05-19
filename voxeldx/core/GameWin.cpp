@@ -1,4 +1,6 @@
 #include "GameMain.h"
+#include "..\helper\allheader.h"
+//#include <memory>
 //#include <shellapi.h>
 //#include "../graphics/Graphics.h"
 
@@ -6,13 +8,31 @@
 
 namespace JUCore
 {
+
+  //class DXGIUsage
+  //{
+  //public:
+  //  void Init();
+  //  IDXGIFactory4* GetDXGIFactory() const { return m_DXGIFactory.Get(); }
+  //  void PrintAdapterList() const;
+  //  // If failed, returns null pointer.
+  //  ComPtr<IDXGIAdapter1> CreateAdapter(const GPUSelection& GPUSelection) const;
+
+  //private:
+  //  ComPtr<IDXGIFactory4> m_DXGIFactory;
+  //};
+
+
  // using namespace Graphics;
 
   bool gIsSupending = false;
   //static HWND g_hWnd = nullptr;
-  //static IGameApp *gapp = nullptr;
+  static std::shared_ptr<IGameApp> g_App = nullptr;
 
-  void InitializeApplication(IGameApp& game, HWND wndh)
+  static HINSTANCE g_Instance;
+  static HWND g_Hwnd;
+
+  void InitializeApplication()// IGameApp& game, HWND wndh)
   {
     //int argc = 0;
     //LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
@@ -23,7 +43,7 @@ namespace JUCore
     //GameInput::Initialize();
     //EngineTuning::Initialize();
     //auto dimos = game.GetDims();
-    game.Startup(wndh);
+    g_App->Startup(g_Hwnd);
 
     //Graphics::get().DX12Initialize(dimos.first, dimos.second, g_hWnd);
     //Graphics::get().DX12ConfigLoad();
@@ -31,17 +51,17 @@ namespace JUCore
     //game.Startup();
   }
 
-  void TerminateApplication(IGameApp& game)
+  void TerminateApplication()//IGameApp& game)
   {
     //g_CommandManager.IdleGPU();
 
-    game.Cleanup();
+    g_App->Cleanup();
     //Graphics::get().DX12Destroy();
 
     //GameInput::Shutdown();
   }
 
-  bool UpdateApplication(IGameApp& game)
+  bool UpdateApplication()//IGameApp& game)
   {
     //EngineProfiling::Update();
 
@@ -50,8 +70,8 @@ namespace JUCore
     //GameInput::Update(DeltaTime);
     //EngineTuning::Update(DeltaTime);
 
-    game.Update(0.f);// DeltaTime);
-    game.RenderScene();
+    g_App->Update(0.f);// DeltaTime);
+    g_App->RenderScene();
 
     //Graphics::get().DX12Render();
 
@@ -72,7 +92,7 @@ namespace JUCore
 
     //Display::Present();
 
-    return !game.IsDone();
+    return !g_App->IsDone();
   }
 
   // Default implementation to be overridden by the application
@@ -83,40 +103,40 @@ namespace JUCore
 
   LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
   {
-    auto kk = GetWindowLongPtr(hWnd, GWLP_USERDATA);
-    IGameApp* pApp = reinterpret_cast<IGameApp*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+    //auto kk = GetWindowLongPtr(hWnd, GWLP_USERDATA);
+    //IGameApp* pApp = reinterpret_cast<IGameApp*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 
     switch (message)
     {
-    case WM_CREATE:
-    {
-      // Save the DXSample* passed in to CreateWindow.
-      LPCREATESTRUCT pCreateStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
-      SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pCreateStruct->lpCreateParams));
-    }
-    return 0;
+    //case WM_CREATE:
+    //{
+    //  // Save the DXSample* passed in to CreateWindow.
+    //  LPCREATESTRUCT pCreateStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
+    //  SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pCreateStruct->lpCreateParams));
+    //}
+    //return 0;
 
     case WM_SIZE:
       return 0;
 
     case WM_KEYDOWN:
-      if (pApp != nullptr) {
+      if (g_App != nullptr) {
         uint8_t kcd = static_cast<uint8_t>(wParam);
-        pApp->OnKeyDown(kcd);
+        g_App->OnKeyDown(kcd);
         //Graphics::get().KeyDn(kcd);
       }
       return 0;
 
     case WM_KEYUP:
-      if (pApp != nullptr) {
-        pApp->OnKeyUp(static_cast<uint8_t>(wParam));
+      if (g_App != nullptr) {
+        g_App->OnKeyUp(static_cast<uint8_t>(wParam));
       }
       return 0;
 
     case WM_PAINT:
-      if (pApp != nullptr) {
-        UpdateApplication(*pApp);
-      }
+      //if (g_App != nullptr) {
+        UpdateApplication();
+      //}
       return 0;
 
     case WM_DESTROY:
@@ -130,8 +150,9 @@ namespace JUCore
     return 0;
   }
 
-  int RunApplication(IGameApp& app, const wchar_t* className, HINSTANCE hInst, int nCmdShow)
+  int RunApplication(std::shared_ptr<IGameApp> app)//, const wchar_t* className, HINSTANCE hInst, int nCmdShow)
   {
+    g_App = app;// std::unique_ptr<IGameApp>(&app);
 
     //gapp = &app;
     //if (!XMVerifyCPUSupport())
@@ -140,38 +161,80 @@ namespace JUCore
     //Microsoft::WRL::Wrappers::RoInitializeWrapper InitializeWinRT(RO_INIT_MULTITHREADED);
     //ASSERT_SUCCEEDED(InitializeWinRT);
 
-    // Register class
-    WNDCLASSEX wcex;
-    wcex.cbSize = sizeof(WNDCLASSEX);
-    wcex.style = CS_HREDRAW | CS_VREDRAW;
-    wcex.lpfnWndProc = WndProc;
-    wcex.cbClsExtra = 0;
-    wcex.cbWndExtra = 0;
-    wcex.hInstance = hInst;
-    wcex.hIcon = LoadIcon(hInst, IDI_APPLICATION);
-    wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
-    wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-    wcex.lpszMenuName = nullptr;
-    wcex.lpszClassName = className;
-    wcex.hIconSm = LoadIcon(hInst, IDI_APPLICATION);
-    //ASSERT(0 != RegisterClassEx(&wcex), "Unable to register a window");
-    auto hh = RegisterClassEx(&wcex);
+    g_Instance = (HINSTANCE)GetModuleHandle(NULL);
+    CoInitialize(NULL);
 
-    // Create window
-    auto dimos = app.GetDims();
-    RECT rc = { 0, 0, (LONG)dimos.first, (LONG)dimos.second };
-    AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
+    //// Register class
+    //WNDCLASSEX wcex;
+    //wcex.cbSize = sizeof(WNDCLASSEX);
+    //wcex.style = CS_HREDRAW | CS_VREDRAW;
+    //wcex.lpfnWndProc = WndProc;
+    //wcex.cbClsExtra = 0;
+    //wcex.cbWndExtra = 0;
+    //wcex.hInstance = g_Instance;// hInst;
+    //wcex.hIcon = LoadIcon(g_Instance, IDI_APPLICATION);//LoadIcon(hInst, IDI_APPLICATION);
+    //wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
+    //wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+    //wcex.lpszMenuName = nullptr;
+    //wcex.lpszClassName = CLASS_NAME;
+    //wcex.hIconSm = LoadIcon(g_Instance, IDI_APPLICATION); //LoadIcon(hInst, IDI_APPLICATION);
+    ////ASSERT(0 != RegisterClassEx(&wcex), "Unable to register a window");
+    //auto hh = RegisterClassEx(&wcex);
 
-    //IGameApp* japp = &app;
+    //// Create window
+    //auto dimos = app.GetDims();
+    //RECT rc = { 0, 0, (LONG)dimos.first, (LONG)dimos.second };
+    //AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
 
-    HWND g_hWnd = CreateWindow(className, className, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
-      rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInst, &app);
+    ////IGameApp* japp = &app;
 
-    //ASSERT(g_hWnd != 0);
+    ////HWND g_hWnd = CreateWindow(className, className, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
+    ////  rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInst, &app);
 
-    InitializeApplication(app, g_hWnd);
+    //g_Hwnd = CreateWindow(CLASS_NAME, WINDOW_TITLE, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
+    //  rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, g_Instance, &app);
 
-    ShowWindow(g_hWnd, nCmdShow/*SW_SHOWDEFAULT*/);
+    ////ASSERT(g_hWnd != 0);
+
+    ////InitializeApplication(app, g_hWnd);
+
+    ////ShowWindow(g_hWnd, nCmdShow/*SW_SHOWDEFAULT*/);
+
+    WNDCLASSEX wndClass;
+    ZeroMemory(&wndClass, sizeof(wndClass));
+    wndClass.cbSize = sizeof(wndClass);
+    wndClass.style = CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;
+    wndClass.hbrBackground = NULL;
+    wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+    wndClass.hInstance = g_Instance;
+    wndClass.lpfnWndProc = &WndProc;
+    wndClass.lpszClassName = CLASS_NAME;
+
+    ATOM classR = RegisterClassEx(&wndClass);
+    assert(classR);
+
+    DWORD style = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_VISIBLE;
+    DWORD exStyle = 0;
+
+    auto dimos = app->GetDims();
+    RECT rect = { 0, 0, (LONG)dimos.first, (LONG)dimos.second };
+    //RECT rect = { 0, 0, SIZE_X, SIZE_Y };
+    AdjustWindowRectEx(&rect, style, FALSE, exStyle);
+    g_Hwnd = CreateWindowEx(
+      exStyle,
+      CLASS_NAME,
+      WINDOW_TITLE,
+      style,
+      CW_USEDEFAULT, CW_USEDEFAULT,
+      rect.right - rect.left, rect.bottom - rect.top,
+      NULL,
+      NULL,
+      g_Instance,
+      0);
+    assert(g_Hwnd);
+
+    InitializeApplication();// app, g_Hwnd);
 
     MSG msg = {};
     while (msg.message != WM_QUIT)
@@ -184,9 +247,9 @@ namespace JUCore
       }
     }
 
-    TerminateApplication(app);
+    TerminateApplication();// app);
     //Graphics::Shutdown();
-    return 0;
+    return (int)msg.wParam;
   }
 
 }

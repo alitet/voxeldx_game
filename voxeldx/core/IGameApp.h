@@ -34,7 +34,7 @@ namespace JUCore
     //virtual bool RequiresRaytracingSupport() const { return false; }
   };
 
-  int RunApplication(IGameApp& app, const wchar_t* className, HINSTANCE hInst, int nCmdShow);
+  int RunApplication(std::shared_ptr<IGameApp> app);// , const wchar_t* className, HINSTANCE hInst, int nCmdShow);
 }
 
 //#define CREATE_APPLICATION( app_class ) \

@@ -21,13 +21,14 @@
   <ItemGroup>
     <ClCompile Include="core\GameMain.cpp" />
     <ClCompile Include="core\GameWin.cpp" />
-    <ClCompile Include="core\main.cpp" />
+    <ClCompile Include="core\mainDos.cpp" />
     <ClCompile Include="graphics\Graphics.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\GameMain.h" />
     <ClInclude Include="core\IGameApp.h" />
     <ClInclude Include="graphics\Graphics.h" />
+    <ClInclude Include="helper\allheader.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -116,9 +117,10 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>d3d12.lib;dxgi.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
