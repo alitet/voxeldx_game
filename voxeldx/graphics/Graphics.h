@@ -32,8 +32,11 @@ namespace JUCore
 
 	private:
 
-		void MoveToNextFrame();
-		void WaitForGpu();
+		//void MoveToNextFrame();
+		//void WaitForGpu();
+
+		void WaitForFrame(size_t frameIndex);
+		void WaitGPUIdle(size_t frameIndex);
 
 		void PopulateCommandList();
 
@@ -79,8 +82,9 @@ namespace JUCore
 
 		// sync values
 		UINT m_frameIndex;
+
 		HANDLE m_fenceEvent;
-		ComPtr<ID3D12Fence> m_fence;
+		ComPtr<ID3D12Fence> m_fence[frameCount];
 		UINT64 m_fenceValues[frameCount];
 
 		UINT m_rtvDescriptorSize;

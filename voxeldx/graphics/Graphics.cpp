@@ -37,57 +37,6 @@ namespace JUCore
   {
   }
 
-  //Graphics& Graphics::get()
-  //{
-  //  if (!mInstance) {
-  //    mInstance = std::unique_ptr<Graphics>(new Graphics());
-  //  }
-  //  return *mInstance;
-  //}
-
-  // from Microsoft MiniEngime
-  //_Use_decl_annotations_ void GetHardwareAdapter(_In_ IDXGIFactory1* pFactory,
-  //  _Outptr_result_maybenull_ IDXGIAdapter1** ppAdapter,
-  //  bool requestHighPerformanceAdapter = false)
-  //{
-  //  *ppAdapter = nullptr;
-  //  ComPtr<IDXGIAdapter1> adapter;
-
-  //  ComPtr<IDXGIFactory6> factory6;
-  //  if (SUCCEEDED(pFactory->QueryInterface(IID_PPV_ARGS(&factory6)))) {
-  //    for (UINT adapterIndex = 0;
-  //      SUCCEEDED(factory6->EnumAdapterByGpuPreference(
-  //        adapterIndex,
-  //        requestHighPerformanceAdapter == true ? DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE : DXGI_GPU_PREFERENCE_UNSPECIFIED,
-  //        IID_PPV_ARGS(&adapter)));
-  //        ++adapterIndex)
-  //    {
-  //      DXGI_ADAPTER_DESC1 desc;
-  //      adapter->GetDesc1(&desc);
-
-  //      if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) { continue; }
-
-  //      // Check DX12 device, mock create
-  //      if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_0, _uuidof(ID3D12Device), nullptr))) {
-  //        break;
-  //      }
-  //    }
-  //  }
-
-  //  //if (adapter.Get() == nullptr) {
-  //  //  for (UINT adapterIndex = 0; SUCCEEDED(pFactory->EnumAdapters1(adapterIndex, &adapter)); ++adapterIndex) {
-  //  //    DXGI_ADAPTER_DESC1 desc;
-  //  //    adapter->GetDesc1(&desc);
-
-  //  //    if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) { continue; }
-  //  //    if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr))) {
-  //  //      break;
-  //  //    }
-  //  //  }
-  //  //}
-  //  *ppAdapter = adapter.Detach();
-  //}
-
   ComPtr<IDXGIAdapter1> GetHardwareAdapter(_In_ IDXGIFactory1* pFactory,
     //_Outptr_result_maybenull_ IDXGIAdapter1** ppAdapter,
     bool requestHighPerformanceAdapter = false)
@@ -141,36 +90,19 @@ namespace JUCore
 
     ComPtr<IDXGIFactory4> factory;
     CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&factory));
-
-    //if (m_useWarpDevice)
-    //{
-    //  ComPtr<IDXGIAdapter> warpAdapter;
-    //  ThrowIfFailed(factory->EnumWarpAdapter(IID_PPV_ARGS(&warpAdapter)));
-
-    //  ThrowIfFailed(D3D12CreateDevice(
-    //    warpAdapter.Get(),
-    //    D3D_FEATURE_LEVEL_11_0,
-    //    IID_PPV_ARGS(&m_device)
-    //  ));
-    //}
-    //else
-    //{
-    //ComPtr<IDXGIAdapter1> hardwareAdapter;
-    //GetHardwareAdapter(factory.Get(), &hardwareAdapter);
     ComPtr<IDXGIAdapter1> hardwareAdapter = GetHardwareAdapter(factory.Get());
 
     D3D12CreateDevice(hardwareAdapter.Get(),
       D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&m_device));
-    //}
 
-    // Describe and create the command queue.
+    // command queue.
     D3D12_COMMAND_QUEUE_DESC queueDesc = {};
     queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
     queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
     m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_commandQueue));
 
-    // Describe and create the swap chain.
+    // swap chain.
     DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
     swapChainDesc.BufferCount = frameCount;
     swapChainDesc.Width = w;
@@ -196,9 +128,9 @@ namespace JUCore
     swapChain.As(&m_swapChain);
     m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 
-    // Create descriptor heaps.
+    // descriptor heaps.
     {
-      // Describe and create a render target view (RTV) descriptor heap.
+      // render target view (RTV) descriptor heap.
       D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
       rtvHeapDesc.NumDescriptors = frameCount;
       rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
@@ -208,11 +140,11 @@ namespace JUCore
       m_rtvDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
     }
 
-    // Create frame resources.
+    // frame resources.
     {
       CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
 
-      // Create a RTV for each frame.
+      // a RTV for each frame.
       for (UINT n = 0; n < frameCount; n++)
       {
         m_swapChain->GetBuffer(n, IID_PPV_ARGS(&m_renderTargets[n]));
@@ -236,13 +168,12 @@ namespace JUCore
       m_device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_rootSignature));
     }
 
-    // Create the pipeline state, which includes compiling and loading shaders.
+    // the pipeline state, that compiling and loading shaders.
     {
       ComPtr<ID3DBlob> vertexShader;
       ComPtr<ID3DBlob> pixelShader;
 
 #if defined(_DEBUG)
-      // Enable better shader debugging with the graphics debugging tools.
       UINT compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #else
       UINT compileFlags = 0;
@@ -280,9 +211,9 @@ namespace JUCore
     // cerrado porque no graba nada
     m_commandList->Close();
 
-    // Create the vertex buffer.
+    // vertex buffer.
     {
-      // Define the geometry for a triangle.
+      // geometry of triangle.
       Vertex triangleVertices[] =
       {
           { { 0.0f, 0.25f * m_aspectRatio, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
@@ -359,24 +290,41 @@ namespace JUCore
 
     }
 
-    // Create synchronization objects and wait until assets have been uploaded to the GPU.
+    //// Create synchronization objects and wait until assets have been uploaded to the GPU.
+    //{
+    //  m_device->CreateFence(m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence));
+    //  m_fenceValues[m_frameIndex]++;
+
+    //  // Create an event handle to use for frame synchronization.
+    //  m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+    //  if (m_fenceEvent == nullptr) { HRESULT_FROM_WIN32(GetLastError()); }
+
+    //  // Wait for the command list to execute; we are reusing the same command 
+    //  // list in our main loop but for now, we just want to wait for setup to 
+    //  // complete before continuing.
+    //  WaitForGpu();
+    //}
+    for (int i = 0; i < frameCount; i++)
     {
-      m_device->CreateFence(m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence));
-      m_fenceValues[m_frameIndex]++;
-
-      // Create an event handle to use for frame synchronization.
-      m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-      if (m_fenceEvent == nullptr) { HRESULT_FROM_WIN32(GetLastError()); }
-
-      // Wait for the command list to execute; we are reusing the same command 
-      // list in our main loop but for now, we just want to wait for setup to 
-      // complete before continuing.
-      WaitForGpu();
+      ID3D12Fence* fence = nullptr;
+      m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
+      m_fence[i].Attach(fence);
+      m_fenceValues[i] = 0; // set the initial g_Fences value to 0
     }
+
+    // create a handle to a g_Fences event
+    m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+    assert(m_fenceEvent);
+
+    WaitGPUIdle(m_frameIndex);
   }
 
   void Graphics::DX12Render()
   {
+    m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
+    WaitForFrame(m_frameIndex);
+    m_fenceValues[m_frameIndex]++;
+
     // Record all the commands we need to render the scene into the command list.
     PopulateCommandList();
 
@@ -384,16 +332,24 @@ namespace JUCore
     ID3D12CommandList* ppCommandLists[] = { m_commandList.Get() };
     m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
+    m_commandQueue->Signal(m_fence[m_frameIndex].Get(), m_fenceValues[m_frameIndex]);
     // Present the frame.
     m_swapChain->Present(1, 0);
 
-    MoveToNextFrame();
+    //MoveToNextFrame();
   }
 
   void Graphics::DX12Destroy()
   {
-    WaitForGpu();
+    for (size_t i = 0; i < frameCount; ++i)
+    {
+      WaitForFrame(i);
+      m_commandQueue->Wait(m_fence[i].Get(), m_fenceValues[i]);
+    }
+    WaitGPUIdle(0);
     CloseHandle(m_fenceEvent);
+    //WaitForGpu();
+    //CloseHandle(m_fenceEvent);
   }
 
   void Graphics::KeyUp(uint8_t key)
@@ -405,34 +361,56 @@ namespace JUCore
     needUpdate = true;
   }
 
-  void Graphics::WaitForGpu()
+  //void Graphics::WaitForGpu()
+  //{
+  //  // la senal es DEL commandqueue NO del fence de CPU
+  //  m_commandQueue->Signal(m_fence.Get(), m_fenceValues[m_frameIndex]);
+
+  //  m_fence->SetEventOnCompletion(m_fenceValues[m_frameIndex], m_fenceEvent);
+  //  WaitForSingleObjectEx(m_fenceEvent, INFINITE, FALSE);
+
+  //  // se va a senalizar con un valor aumentado.
+  //  m_fenceValues[m_frameIndex]++;
+  //}
+
+  //void Graphics::MoveToNextFrame()
+  //{
+  //  // Se le dice que signalize, pero lo va a hacer hasta que termine.
+  //  const UINT64 currentFenceValue = m_fenceValues[m_frameIndex];
+  //  m_commandQueue->Signal(m_fence.Get(), currentFenceValue);
+
+  //  m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
+
+  //  if (m_fence->GetCompletedValue() < m_fenceValues[m_frameIndex])
+  //  {
+  //    m_fence->SetEventOnCompletion(m_fenceValues[m_frameIndex], m_fenceEvent);
+  //    WaitForSingleObjectEx(m_fenceEvent, INFINITE, FALSE);
+  //  }
+
+  //  // Se aumenta el fence pero solo del frame actualmente en le swapchain.
+  //  m_fenceValues[m_frameIndex] = currentFenceValue + 1;
+  //}
+
+  void Graphics::WaitForFrame(size_t frameIndex) // wait until gpu is finished with command list
   {
-    // la senal es DEL commandqueue NO del fence de CPU
-    m_commandQueue->Signal(m_fence.Get(), m_fenceValues[m_frameIndex]);
+    // if the current g_Fences value is still less than "g_FenceValues", then we know the GPU has not finished executing
+    // the command queue since it has not reached the "g_CommandQueue->Signal(g_Fences, g_FenceValues)" command
+    if (m_fence[frameIndex]->GetCompletedValue() < m_fenceValues[frameIndex])
+    {
+      // we have the g_Fences create an event which is signaled once the g_Fences's current value is "g_FenceValues"
+      m_fence[frameIndex]->SetEventOnCompletion(m_fenceValues[frameIndex], m_fenceEvent);
 
-    m_fence->SetEventOnCompletion(m_fenceValues[m_frameIndex], m_fenceEvent);
-    WaitForSingleObjectEx(m_fenceEvent, INFINITE, FALSE);
-
-    // se va a senalizar con un valor aumentado.
-    m_fenceValues[m_frameIndex]++;
+      // We will wait until the g_Fences has triggered the event that it's current value has reached "g_FenceValues". once it's value
+      // has reached "g_FenceValues", we know the command queue has finished executing
+      WaitForSingleObject(m_fenceEvent, INFINITE);
+    }
   }
 
-  void Graphics::MoveToNextFrame()
+  void Graphics::WaitGPUIdle(size_t frameIndex)
   {
-    // Se le dice que signalize, pero lo va a hacer hasta que termine.
-    const UINT64 currentFenceValue = m_fenceValues[m_frameIndex];
-    m_commandQueue->Signal(m_fence.Get(), currentFenceValue);
-
-    m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
-
-    if (m_fence->GetCompletedValue() < m_fenceValues[m_frameIndex])
-    {
-      m_fence->SetEventOnCompletion(m_fenceValues[m_frameIndex], m_fenceEvent);
-      WaitForSingleObjectEx(m_fenceEvent, INFINITE, FALSE);
-    }
-
-    // Se aumenta el fence pero solo del frame actualmente en le swapchain.
-    m_fenceValues[m_frameIndex] = currentFenceValue + 1;
+    m_fenceValues[frameIndex]++;
+    m_commandQueue->Signal(m_fence[frameIndex].Get(), m_fenceValues[frameIndex]);
+    WaitForFrame(frameIndex);
   }
 
   void Graphics::PopulateCommandList()
