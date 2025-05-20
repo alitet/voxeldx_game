@@ -32,7 +32,7 @@ namespace JUCore
   static HINSTANCE g_Instance;
   static HWND g_Hwnd;
 
-  void InitializeApplication()// IGameApp& game, HWND wndh)
+  void InitApp()// IGameApp& game, HWND wndh)
   {
     //int argc = 0;
     //LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
@@ -51,7 +51,7 @@ namespace JUCore
     //game.Startup();
   }
 
-  void TerminateApplication()//IGameApp& game)
+  void EndApp()//IGameApp& game)
   {
     //g_CommandManager.IdleGPU();
 
@@ -61,7 +61,7 @@ namespace JUCore
     //GameInput::Shutdown();
   }
 
-  bool UpdateApplication()//IGameApp& game)
+  bool UpdateApp()//IGameApp& game)
   {
     //EngineProfiling::Update();
 
@@ -120,22 +120,22 @@ namespace JUCore
       return 0;
 
     case WM_KEYDOWN:
-      if (g_App != nullptr) {
-        uint8_t kcd = static_cast<uint8_t>(wParam);
-        g_App->OnKeyDown(kcd);
+      //if (g_App != nullptr) {
+        //uint8_t kcd = static_cast<uint8_t>(wParam);
+        g_App->OnKeyDown(static_cast<uint8_t>(wParam));
         //Graphics::get().KeyDn(kcd);
-      }
+      //}
       return 0;
 
     case WM_KEYUP:
-      if (g_App != nullptr) {
+      //if (g_App != nullptr) {
         g_App->OnKeyUp(static_cast<uint8_t>(wParam));
-      }
+      //}
       return 0;
 
     case WM_PAINT:
       //if (g_App != nullptr) {
-        UpdateApplication();
+        UpdateApp();
       //}
       return 0;
 
@@ -234,7 +234,7 @@ namespace JUCore
       0);
     assert(g_Hwnd);
 
-    InitializeApplication();// app, g_Hwnd);
+    InitApp();// app, g_Hwnd);
 
     MSG msg = {};
     while (msg.message != WM_QUIT)
@@ -247,7 +247,7 @@ namespace JUCore
       }
     }
 
-    TerminateApplication();// app);
+    EndApp();// app);
     //Graphics::Shutdown();
     return (int)msg.wParam;
   }

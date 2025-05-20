@@ -1,13 +1,16 @@
 #include "GameMain.h"
 #include "..\helper\allheader.h"
+//#include <locale>
+//#include <codecvt>
 //#include <thread>
 //#include <chrono>
 
 using namespace JUCore;
 
+
 static void PrintLogo()
 {
-  PRINT(WINDOW_TITLE);
+  PRINT(utf8_encode(CLASS_NAME).c_str())
 }
 
 int maindos(int argc, wchar_t** argv)

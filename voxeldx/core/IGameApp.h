@@ -8,6 +8,7 @@
 #include <Windows.h>
 #include <utility>
 #include <stdint.h>
+#include <memory>
 
 namespace JUCore
 {
