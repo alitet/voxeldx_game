@@ -10,6 +10,9 @@
     <Filter Include="helper">
       <UniqueIdentifier>{e1482238-8157-4a15-b50d-dbb661b69819}</UniqueIdentifier>
     </Filter>
+    <Filter Include="libs">
+      <UniqueIdentifier>{8b742593-aa90-4d37-9363-bc31fb4af609}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="core\GameMain.cpp">
@@ -37,6 +40,9 @@
     </ClInclude>
     <ClInclude Include="helper\allheader.h">
       <Filter>helper</Filter>
+    </ClInclude>
+    <ClInclude Include="libs\D3D12MemAlloc.h">
+      <Filter>libs</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

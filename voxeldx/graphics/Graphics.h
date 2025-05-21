@@ -4,7 +4,8 @@
 #include <dxgi1_6.h>
 #include <D3Dcompiler.h>
 #include <DirectXMath.h>
-#include "../dx/include/d3dx12/d3dx12.h"
+#include "..\dx\include\d3dx12\d3dx12.h"
+#include "..\libs\D3D12MemAlloc.h"
 
 #include <wrl.h>
 #include <memory>
@@ -12,9 +13,14 @@
 using namespace DirectX;
 using Microsoft::WRL::ComPtr;
 
+//namespace D3D12MA {
+//	class Allocation;
+//	class Allocator;
+//}
+
 namespace JUCore
 {
-	constexpr unsigned char frameCount = 2;
+	constexpr unsigned char FRAME_COUNT = 2;
 
 	class Graphics {
 	public:
@@ -66,8 +72,8 @@ namespace JUCore
 		ComPtr<ID3D12CommandQueue> m_commandQueue;
 		ComPtr<IDXGISwapChain3> m_swapChain;
 		ComPtr<ID3D12DescriptorHeap> m_rtvHeap;
-		ComPtr<ID3D12Resource> m_renderTargets[frameCount];
-		ComPtr<ID3D12CommandAllocator> m_commandAllocator;
+		ComPtr<ID3D12Resource> m_renderTargets[FRAME_COUNT];
+		ComPtr<ID3D12CommandAllocator> m_commandAllocator[FRAME_COUNT];
 
 		ComPtr<ID3D12RootSignature> m_rootSignature;
 		ComPtr<ID3D12PipelineState> m_pipelineState;
@@ -80,12 +86,17 @@ namespace JUCore
 		ComPtr<ID3D12Resource> m_vertexDefault;
 		D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
 
+	  ComPtr<D3D12MA::Allocator> m_allocator;
+		D3D12MA::Allocation* m_vertexBufferAllocation;
+		D3D12MA::Allocation* m_indexBufferAllocation;
+
+
 		// sync values
 		UINT m_frameIndex;
 
 		HANDLE m_fenceEvent;
-		ComPtr<ID3D12Fence> m_fence[frameCount];
-		UINT64 m_fenceValues[frameCount];
+		ComPtr<ID3D12Fence> m_fence[FRAME_COUNT];
+		UINT64 m_fenceValues[FRAME_COUNT];
 
 		UINT m_rtvDescriptorSize;
 		//UINT frameIndex;

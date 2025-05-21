@@ -47,6 +47,12 @@ constexpr const wchar_t* const WINDOW_TITLE = L"Voxel Engine Discrete";
     }
 
 
+template <typename T>
+inline constexpr T AlignUp(T val, T align)
+{
+  return (val + align - 1) / align * align;
+}
+
 static std::string utf8_encode(const std::wstring& wstr)
 {
   if (wstr.empty()) return std::string();
