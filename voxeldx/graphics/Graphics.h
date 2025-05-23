@@ -88,7 +88,7 @@ namespace JUCore
 
 	  ComPtr<D3D12MA::Allocator> m_allocator;
 		D3D12MA::Allocation* m_vertexBufferAllocation;
-		D3D12MA::Allocation* m_indexBufferAllocation;
+		//D3D12MA::Allocation* m_indexBufferAllocation;
 
 
 		// sync values

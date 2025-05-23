@@ -452,6 +452,10 @@ namespace JUCore
       m_commandQueue->Wait(m_fence[i].Get(), m_fenceValues[i]);
     }
     WaitGPUIdle(0);
+
+    m_vertexDefault.Reset();
+    m_vertexBufferAllocation->Release(); m_vertexBufferAllocation = nullptr;
+
     CloseHandle(m_fenceEvent);
     //WaitForGpu();
     //CloseHandle(m_fenceEvent);
