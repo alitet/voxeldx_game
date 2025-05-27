@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../dx/include/d3d12.h"
+#include "..\dx\include\d3d12.h"
 #include <dxgi1_6.h>
 #include <D3Dcompiler.h>
 #include <DirectXMath.h>
@@ -46,7 +46,7 @@ namespace JUCore
 
 		void PopulateCommandList();
 
-		void PreFillCL();
+		//void PreFillCL();
 		void PostFillCL();
 
 	private:
@@ -88,6 +88,7 @@ namespace JUCore
 
 	  ComPtr<D3D12MA::Allocator> m_allocator;
 		D3D12MA::Allocation* m_vertexBufferAllocation;
+		D3D12MA::Allocation* m_vertexUploadAllocation;
 		//D3D12MA::Allocation* m_indexBufferAllocation;
 
 
