@@ -158,8 +158,7 @@ namespace JUCore
       D3D12MA::CreateAllocator(&desc, &m_allocator);
     }
 
-    for (int i = 0; i < FRAME_COUNT; i++)
-    {
+    for (int i = 0; i < FRAME_COUNT; i++) {
       ID3D12Fence* fence = nullptr;
       m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
       m_fence[i].Attach(fence);
