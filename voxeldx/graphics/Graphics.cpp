@@ -15,7 +15,7 @@ namespace JUCore
 
   Graphics::Graphics()
     : m_frameIndex(0), m_rtvDescriptorSize(0)
-    , m_aspectRatio(1.f), m_fenceEvent(0)
+    , m_aspectRatio(1.f), m_fenceEvent(0), m_fenceEventCopy(0)
   {
   }
 
@@ -78,11 +78,21 @@ namespace JUCore
       D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&m_device));
 
     // command queue.
-    D3D12_COMMAND_QUEUE_DESC queueDesc = {};
-    queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-    queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+    D3D12_COMMAND_QUEUE_DESC queueDesc_g = {};
+    queueDesc_g.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+    queueDesc_g.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
-    m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_commandQueue));
+    m_device->CreateCommandQueue(&queueDesc_g, IID_PPV_ARGS(&m_graphicsQueue));
+
+    //// command queue.
+    //D3D12_COMMAND_QUEUE_DESC queueDesc_c = {};
+    //queueDesc_c.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+    //queueDesc_c.Type = D3D12_COMMAND_LIST_TYPE_COPY;
+
+    //m_device->CreateCommandQueue(&queueDesc_c, IID_PPV_ARGS(&m_copyQueue));
+
+    m_geometryServer.createCopyCmdQueue(m_device);
+
 
     // swap chain.
     DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
@@ -96,7 +106,7 @@ namespace JUCore
 
     ComPtr<IDXGISwapChain1> swapChain;
     factory->CreateSwapChainForHwnd(
-      m_commandQueue.Get(),
+      m_graphicsQueue.Get(),
       handler,
       &swapChainDesc,
       nullptr,
@@ -142,6 +152,12 @@ namespace JUCore
       m_commandAllocator[i].Attach(commandAllocator);
     }
 
+    m_geometryServer.createCopyCmdAllocator(m_device);
+
+    //ID3D12CommandAllocator* copyAllocator = nullptr;
+    //m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_COPY, IID_PPV_ARGS(&copyAllocator));
+    //m_copyCmdAllocator.Attach(copyAllocator);
+
     {
       D3D12MA::ALLOCATOR_DESC desc = {};
       desc.Flags = g_AllocatorFlags;
@@ -162,12 +178,24 @@ namespace JUCore
       ID3D12Fence* fence = nullptr;
       m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
       m_fence[i].Attach(fence);
-      m_fenceValues[i] = 0; // set the initial g_Fences value to 0
+      m_fenceValues[i] = 0;
     }
 
     // create a handle to a g_Fences event
     m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
     assert(m_fenceEvent);
+
+		// Copy fence
+
+		ID3D12Fence* fencecpy = nullptr;
+		m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fencecpy));
+		m_fenceCopy.Attach(fencecpy);
+		m_fenceValueCopy = 0;
+
+		// create a handle to a g_Fences event
+		m_fenceEventCopy = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+		assert(m_fenceEventCopy);
+
 
   }
 
@@ -225,6 +253,11 @@ namespace JUCore
     m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator[0].Get(), m_pipelineState.Get(), IID_PPV_ARGS(&m_commandList));
     // cerrado porque no graba nada
     m_commandList->Close();
+
+		m_geometryServer.createCopyCmdList(m_device);
+
+    //m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_COPY, m_copyCmdAllocator.Get(), nullptr, IID_PPV_ARGS(&m_copyCmdList));
+    //m_copyCmdList->Close();
 
     // vertex buffer.
     {
@@ -330,7 +363,7 @@ namespace JUCore
       // Now we execute the command list to upload the initial assets (triangle data)
       m_commandList->Close();
       ID3D12CommandList* ppCommandLists[] = { m_commandList.Get() };
-      m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+      m_graphicsQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
       // increment the fence value now, otherwise the buffer might not be uploaded by the time we start drawing
       WaitGPUIdle(m_frameIndex);
@@ -438,9 +471,9 @@ namespace JUCore
 
     // Execute the command list.
     ID3D12CommandList* ppCommandLists[] = { m_commandList.Get() };
-    m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+    m_graphicsQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
-    m_commandQueue->Signal(m_fence[m_frameIndex].Get(), m_fenceValues[m_frameIndex]);
+    m_graphicsQueue->Signal(m_fence[m_frameIndex].Get(), m_fenceValues[m_frameIndex]);
     // Present the frame.
     m_swapChain->Present(1, 0);
 
@@ -452,7 +485,7 @@ namespace JUCore
     for (size_t i = 0; i < FRAME_COUNT; ++i)
     {
       WaitForFrame(i);
-      m_commandQueue->Wait(m_fence[i].Get(), m_fenceValues[i]);
+      m_graphicsQueue->Wait(m_fence[i].Get(), m_fenceValues[i]);
     }
     WaitGPUIdle(0);
 
@@ -522,7 +555,7 @@ namespace JUCore
   void Graphics::WaitGPUIdle(size_t frameIndex)
   {
     m_fenceValues[frameIndex]++;
-    m_commandQueue->Signal(m_fence[frameIndex].Get(), m_fenceValues[frameIndex]);
+    m_graphicsQueue->Signal(m_fence[frameIndex].Get(), m_fenceValues[frameIndex]);
     WaitForFrame(frameIndex);
   }
 

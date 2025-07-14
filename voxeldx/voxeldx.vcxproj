@@ -22,11 +22,13 @@
     <ClCompile Include="core\GameMain.cpp" />
     <ClCompile Include="core\GameWin.cpp" />
     <ClCompile Include="core\mainDos.cpp" />
+    <ClCompile Include="graphics\GeometryServer.cpp" />
     <ClCompile Include="graphics\Graphics.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\GameMain.h" />
     <ClInclude Include="core\IGameApp.h" />
+    <ClInclude Include="graphics\GeometryServer.h" />
     <ClInclude Include="graphics\Graphics.h" />
     <ClInclude Include="helper\allheader.h" />
     <ClInclude Include="libs\D3D12MemAlloc.h" />

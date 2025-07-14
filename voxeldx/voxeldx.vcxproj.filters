@@ -27,6 +27,9 @@
     <ClCompile Include="core\mainDos.cpp">
       <Filter>core</Filter>
     </ClCompile>
+    <ClCompile Include="graphics\GeometryServer.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\GameMain.h">
@@ -43,6 +46,9 @@
     </ClInclude>
     <ClInclude Include="libs\D3D12MemAlloc.h">
       <Filter>libs</Filter>
+    </ClInclude>
+    <ClInclude Include="graphics\GeometryServer.h">
+      <Filter>graphics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

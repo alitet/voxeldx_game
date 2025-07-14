@@ -7,6 +7,8 @@
 #include "..\dx\include\d3dx12\d3dx12.h"
 #include "..\libs\D3D12MemAlloc.h"
 
+#include "GeometryServer.h"
+
 #include <wrl.h>
 #include <memory>
 
@@ -69,7 +71,8 @@ namespace JUCore
 		CD3DX12_RECT m_scissorRect;
 
 		ComPtr<ID3D12Device> m_device;
-		ComPtr<ID3D12CommandQueue> m_commandQueue;
+		ComPtr<ID3D12CommandQueue> m_graphicsQueue;
+
 		ComPtr<IDXGISwapChain3> m_swapChain;
 		ComPtr<ID3D12DescriptorHeap> m_rtvHeap;
 		ComPtr<ID3D12Resource> m_renderTargets[FRAME_COUNT];
@@ -79,6 +82,15 @@ namespace JUCore
 		ComPtr<ID3D12PipelineState> m_pipelineState;
 
 		ComPtr<ID3D12GraphicsCommandList> m_commandList;
+
+
+		GeometryServer m_geometryServer;
+
+		//// Copy queue
+		//ComPtr<ID3D12CommandQueue> m_copyQueue;
+		//ComPtr<ID3D12GraphicsCommandList> m_copyCmdList;
+		//ComPtr<ID3D12CommandAllocator> m_copyCmdAllocator;
+
 
 		//ComPtr<ID3D12Resource> m_vertexBuffer;
 
@@ -98,6 +110,10 @@ namespace JUCore
 		HANDLE m_fenceEvent;
 		ComPtr<ID3D12Fence> m_fence[FRAME_COUNT];
 		UINT64 m_fenceValues[FRAME_COUNT];
+
+		HANDLE m_fenceEventCopy;
+		ComPtr<ID3D12Fence> m_fenceCopy;
+		UINT64 m_fenceValueCopy;
 
 		UINT m_rtvDescriptorSize;
 		//UINT frameIndex;
