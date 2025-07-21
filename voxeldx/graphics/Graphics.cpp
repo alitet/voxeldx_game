@@ -15,7 +15,7 @@ namespace JUCore
 
   Graphics::Graphics()
     : m_frameIndex(0), m_rtvDescriptorSize(0)
-    , m_aspectRatio(1.f), m_fenceEvent(0), m_fenceEventCopy(0)
+    , m_aspectRatio(1.f), m_fenceEvent(0)//, m_fenceEventCopy(0)
   {
   }
 
@@ -186,15 +186,17 @@ namespace JUCore
     assert(m_fenceEvent);
 
 		// Copy fence
+		m_geometryServer.createCopyFence(m_device);
+		m_geometryServer.createCopyEvent(m_device);
 
-		ID3D12Fence* fencecpy = nullptr;
-		m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fencecpy));
-		m_fenceCopy.Attach(fencecpy);
-		m_fenceValueCopy = 0;
+		//ID3D12Fence* fencecpy = nullptr;
+		//m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fencecpy));
+		//m_fenceCopy.Attach(fencecpy);
+		//m_fenceValueCopy = 0;
 
-		// create a handle to a g_Fences event
-		m_fenceEventCopy = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-		assert(m_fenceEventCopy);
+		//// create a handle to a g_Fences event
+		//m_fenceEventCopy = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+		//assert(m_fenceEventCopy);
 
 
   }
@@ -494,8 +496,8 @@ namespace JUCore
     m_vertexUploadAllocation->Release(); m_vertexUploadAllocation = nullptr;
 
     CloseHandle(m_fenceEvent);
-    //WaitForGpu();
-    //CloseHandle(m_fenceEvent);
+
+    m_geometryServer.Destroy();
   }
 
   void Graphics::KeyUp(uint8_t key)
@@ -599,7 +601,7 @@ namespace JUCore
     //}
 
     if (needUpdate) {
-      PostFillCL();
+      //PostFillCL();
       needUpdate = false;
     }
 
@@ -637,31 +639,31 @@ namespace JUCore
 
   void Graphics::PostFillCL()
   {
-    Vertex triangleVertices[] =
-    {
-        { { 0.0f, -0.25f * m_aspectRatio, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
-        { { -0.25f, 0.25f * m_aspectRatio, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-        { { 0.25f, 0.25f * m_aspectRatio, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
-    };
+    //Vertex triangleVertices[] =
+    //{
+    //    { { 0.0f, -0.25f * m_aspectRatio, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
+    //    { { -0.25f, 0.25f * m_aspectRatio, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
+    //    { { 0.25f, 0.25f * m_aspectRatio, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
+    //};
 
-    //const UINT vBufferSize = sizeof(triangleVertices);
+    ////const UINT vBufferSize = sizeof(triangleVertices);
 
-    // Copy the triangle data to the vertex buffer.
-    UINT8* pVertexDataBegin;
-    CD3DX12_RANGE readRange(0, 0);        // We do not intend to read from this resource on the CPU.
-    m_vertexUpload->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin));
-    memcpy(pVertexDataBegin, triangleVertices, sizeof(triangleVertices));
-    m_vertexUpload->Unmap(0, nullptr);
+    //// Copy the triangle data to the vertex buffer.
+    //UINT8* pVertexDataBegin;
+    //CD3DX12_RANGE readRange(0, 0);        // We do not intend to read from this resource on the CPU.
+    //m_vertexUpload->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin));
+    //memcpy(pVertexDataBegin, triangleVertices, sizeof(triangleVertices));
+    //m_vertexUpload->Unmap(0, nullptr);
 
-    auto resDFF = CD3DX12_RESOURCE_BARRIER::Transition(m_vertexDefault.Get(),
-    D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_STATE_COPY_DEST);
-    m_commandList->ResourceBarrier(1, &resDFF);
+    //auto resDFF = CD3DX12_RESOURCE_BARRIER::Transition(m_vertexDefault.Get(),
+    //D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_STATE_COPY_DEST);
+    //m_commandList->ResourceBarrier(1, &resDFF);
 
-    m_commandList->CopyResource(m_vertexDefault.Get(), m_vertexUpload.Get());
+    //m_commandList->CopyResource(m_vertexDefault.Get(), m_vertexUpload.Get());
 
-    auto resVBB = CD3DX12_RESOURCE_BARRIER::Transition(m_vertexDefault.Get(),
-      D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
-    m_commandList->ResourceBarrier(1, &resVBB);
+    //auto resVBB = CD3DX12_RESOURCE_BARRIER::Transition(m_vertexDefault.Get(),
+    //  D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+    //m_commandList->ResourceBarrier(1, &resVBB);
   }
 
 }

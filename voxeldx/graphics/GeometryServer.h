@@ -11,11 +11,21 @@ namespace JUCore
 	class GeometryServer
 	{
 	public:
-		GeometryServer() = default;
+		GeometryServer();
 
 		void createCopyCmdQueue(ComPtr<ID3D12Device> device);
 		void createCopyCmdAllocator(ComPtr<ID3D12Device> device);
 		void createCopyCmdList(ComPtr<ID3D12Device> device);
+
+		void createCopyFence(ComPtr<ID3D12Device> device);
+		void createCopyEvent(ComPtr<ID3D12Device> device);
+
+		void updateGeometry(float aspectRatio, 
+			ComPtr<ID3D12Resource> vertexUpload, ComPtr<ID3D12Resource> vertexDefault);
+
+		void WaitForCopyFence();
+
+		void Destroy();
 
 	private:
 

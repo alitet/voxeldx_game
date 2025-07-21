@@ -3,10 +3,11 @@
 #include "..\dx\include\d3d12.h"
 #include <dxgi1_6.h>
 #include <D3Dcompiler.h>
-#include <DirectXMath.h>
+//#include <DirectXMath.h>
 #include "..\dx\include\d3dx12\d3dx12.h"
 #include "..\libs\D3D12MemAlloc.h"
 
+#include "grapheader.h"
 #include "GeometryServer.h"
 
 #include <wrl.h>
@@ -61,12 +62,6 @@ namespace JUCore
 
 		float m_aspectRatio;
 
-		struct Vertex
-		{
-			XMFLOAT3 position;
-			XMFLOAT4 color;
-		};
-
 		CD3DX12_VIEWPORT m_viewport;
 		CD3DX12_RECT m_scissorRect;
 
@@ -111,9 +106,9 @@ namespace JUCore
 		ComPtr<ID3D12Fence> m_fence[FRAME_COUNT];
 		UINT64 m_fenceValues[FRAME_COUNT];
 
-		HANDLE m_fenceEventCopy;
-		ComPtr<ID3D12Fence> m_fenceCopy;
-		UINT64 m_fenceValueCopy;
+		//HANDLE m_fenceEventCopy;
+		//ComPtr<ID3D12Fence> m_fenceCopy;
+		//UINT64 m_fenceValueCopy;
 
 		UINT m_rtvDescriptorSize;
 		//UINT frameIndex;

@@ -50,5 +50,8 @@
     <ClInclude Include="graphics\GeometryServer.h">
       <Filter>graphics</Filter>
     </ClInclude>
+    <ClInclude Include="graphics\grapheader.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
