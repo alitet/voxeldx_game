@@ -23,9 +23,9 @@ namespace JUCore
 		void updateGeometry(float aspectRatio, 
 			ComPtr<ID3D12Resource> vertexUpload, ComPtr<ID3D12Resource> vertexDefault);
 
-		void WaitForCopyFence();
+		void waitForCopyFence();
 
-		void Destroy();
+		void destroy();
 
 	private:
 

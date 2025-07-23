@@ -497,7 +497,7 @@ namespace JUCore
 
     CloseHandle(m_fenceEvent);
 
-    m_geometryServer.Destroy();
+    m_geometryServer.destroy();
   }
 
   void Graphics::KeyUp(uint8_t key)
@@ -602,6 +602,8 @@ namespace JUCore
 
     if (needUpdate) {
       //PostFillCL();
+      m_geometryServer.updateGeometry(m_aspectRatio, m_vertexUpload, m_vertexDefault);
+      m_geometryServer.waitForCopyFence();
       needUpdate = false;
     }
 

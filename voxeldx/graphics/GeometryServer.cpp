@@ -83,7 +83,7 @@ namespace JUCore
 		m_copyQueue->Signal(m_fenceCopy.Get(), m_fenceValueCopy);
 	}
 
-	void GeometryServer::WaitForCopyFence()
+	void GeometryServer::waitForCopyFence()
 	{
 		if (m_fenceCopy->GetCompletedValue() < m_fenceValueCopy)
 		{			
@@ -92,7 +92,7 @@ namespace JUCore
 		}
 	}
 
-	void GeometryServer::Destroy()
+	void GeometryServer::destroy()
 	{
 		CloseHandle(m_fenceEventCopy);
 	}
